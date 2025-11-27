@@ -101,10 +101,13 @@ If you do not have Java installed and want an easier way:
    git remote add origin https://github.com/cambliss/video-conferencing.git
    ```
 
-5. Push to GitHub:
-   ```
-   git push -u origin master
-   ```
+# If you see "error: remote origin already exists", you need to update the remote URL instead of adding a new one.
+
+# To change the remote URL, run:
+git remote set-url origin https://github.com/cambliss/call--video-cambliss.git
+
+# Then push your code:
+git push -u origin master
 
 **Before you commit, make sure `.env` and any secret files are listed in `.gitignore`.**
 
