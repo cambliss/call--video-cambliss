@@ -20,3 +20,5 @@ export const siteConfig: SiteConfig = {
     github: "https://github.com/JaleelB/callsquare",
   },
 }
+
+// No favicon is set in this file, so no changes are needed.
