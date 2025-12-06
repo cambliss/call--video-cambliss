@@ -1,6 +1,6 @@
-import { type MetadataRoute } from 'next'
-import { siteConfig } from '~/config/site-config'
- 
+import { type MetadataRoute } from "next";
+import { siteConfig } from "~/config/site-config";
+
 export default function sitemap(): MetadataRoute.Sitemap {
   return [
     {
@@ -15,5 +15,5 @@ export default function sitemap(): MetadataRoute.Sitemap {
       url: `${siteConfig.url}/calls/history`,
       lastModified: new Date(),
     },
-  ]
+  ];
 }

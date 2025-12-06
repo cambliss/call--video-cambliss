@@ -1,31 +1,32 @@
 "use client";
-import React, { createContext, useState, useContext } from 'react';
-import { v4 as uuidv4 } from 'uuid';
+import React, { createContext, useState, useContext } from "react";
+import { v4 as uuidv4 } from "uuid";
 
 export interface CallIdValues {
-    callId: string;
+  callId: string;
+  setCallId: (id: string) => void;
 }
 
 const CallIdContext = createContext<CallIdValues | null>(null);
 
 export default function CallIdProvider({
-    children,
+  children,
 }: {
-    children: React.ReactNode;
+  children: React.ReactNode;
 }) {
-    const [callId, setCallId] = useState(uuidv4());
+  const [callId, setCallId] = useState(uuidv4());
 
-    return (
-        <CallIdContext.Provider value={{ callId }}>
-            {children}
-        </CallIdContext.Provider>
-    );
+  return (
+    <CallIdContext.Provider value={{ callId, setCallId }}>
+      {children}
+    </CallIdContext.Provider>
+  );
 }
 
 export const useCallId = (): CallIdValues => {
-    const context = useContext(CallIdContext);
-    if (!context) {
-      throw new Error('useCallId must be used within a CallIdProvider');
-    }
-    return context;
+  const context = useContext(CallIdContext);
+  if (!context) {
+    throw new Error("useCallId must be used within a CallIdProvider");
+  }
+  return context;
 };

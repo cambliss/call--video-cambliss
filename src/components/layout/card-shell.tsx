@@ -16,6 +16,7 @@ export interface CardProps {
   buttonText: string;
   buttonIcon: ReactNode;
   loadingIcon: ReactNode;
+  selectedPlan?: "free" | "starter" | "professional" | "enterprise";
 }
 
 export interface CardShellProps {

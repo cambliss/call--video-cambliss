@@ -11,22 +11,23 @@ export const metadata: Metadata = {
 
 export default function LoginPage() {
   return (
-    <main className="mx-auto grid h-screen w-screen grid-cols-1 lg:grid-cols-2 bg-black text-white" style={{ background: "linear-gradient(135deg, #111 60%, #fff 100%)" }}>
-      <section className="relative grid place-items-center p-12">
-        <div className="mx-auto -mt-16 flex w-[330px] flex-col justify-center gap-8 sm:w-[370px] bg-black border-2 border-yellow-400 rounded-2xl p-8 shadow-lg">
-          <div>
+    <main className="mx-auto flex h-screen w-screen bg-black text-white">
+      {/* Left: Login Card */}
+      <section className="flex flex-1 items-center justify-center px-4 py-10 bg-black">
+        <div className="w-full max-w-md rounded-2xl border-2 border-yellow-400 bg-black/90 p-8 shadow-2xl flex flex-col gap-8">
+          <div className="flex flex-col items-center gap-2">
             <Link href="/">
-              <Icons.logo height={60} width={60} className="-ml-3 mb-3 text-yellow-400" />
+              <Icons.logo height={52} style={{ width: "fit-content" }} className="mb-2 text-yellow-400" />
             </Link>
-            <h1 className="mb-0.5 text-3xl font-bold tracking-tight text-yellow-400">
-              Connect with Cambliss now
+            <h1 className="text-2xl font-bold tracking-tight text-yellow-400 text-center">
+              Connect with Cambliss
             </h1>
-            <p className="text-base text-yellow-200">
+            <p className="text-base text-yellow-200 text-center">
               Welcome back! Sign in to your Cambliss Videoconferencing account
             </p>
           </div>
           <SocialAuthForm />
-          <p className="px-8 text-center text-base text-yellow-200">
+          <p className="text-center text-base text-yellow-200">
             <Link
               href="/register"
               className="hover:text-yellow-400 underline underline-offset-4"
@@ -36,12 +37,17 @@ export default function LoginPage() {
           </p>
         </div>
       </section>
+      {/* Right: Image */}
       <section
-        className="hidden bg-yellow-100 bg-cover bg-center bg-no-repeat lg:block"
+        className="hidden lg:flex flex-1 items-center justify-center bg-yellow-100 bg-cover bg-center"
         style={{
           backgroundImage: `url(https://images.pexels.com/photos/4492135/pexels-photo-4492135.jpeg)`,
         }}
-      ></section>
+      >
+        <div className="w-full h-full bg-black/30 flex items-center justify-center">
+          {/* Optionally add a tagline or overlay here */}
+        </div>
+      </section>
     </main>
   );
 }

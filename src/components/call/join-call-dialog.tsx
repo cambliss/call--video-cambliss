@@ -43,30 +43,73 @@ export default function JoinCallDialog(card: CardProps) {
     setIsJoinCallLoading(true);
     const callName = extractId(data.meetingLink);
 
-    const response = await fetch(`/api/call/join`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        callName: callName,
-        username: data.name,
-      }),
-    }).catch((error) => {
-      console.error("Error during fetch:", error);
-    });
+    try {
+      const response = await fetch(`/api/call/join`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          callName: callName,
+          username: data.name,
+        }),
+      });
 
-    if (!response?.ok) {
+      // 🔹 Handle plan limit exceeded
+      if (response.status === 403) {
+        let errorData: any = {};
+        try {
+          errorData = await response.json();
+        } catch {
+          // ignore parse error
+        }
+
+        setIsJoinCallLoading(false);
+
+        if (errorData?.error === "PLAN_LIMIT_EXCEEDED") {
+          toast({
+            title: "Meeting limit reached",
+            description:
+              errorData.message ??
+              "This meeting has reached the maximum number of participants for the current plan.",
+            variant: "destructive",
+          });
+
+          // 👉 redirect user to upgrade/pricing
+          router.push("/calls?upgrade=1");
+          return;
+        }
+
+        // some other 403
+        toast({
+          title: "Something went wrong.",
+          description: "This call cannot be joined. Please try again.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (!response.ok) {
+        setIsJoinCallLoading(false);
+        toast({
+          title: "Something went wrong.",
+          description: "This call cannot be joined. Please try again.",
+          variant: "destructive",
+        });
+        return;
+      }
+
       setIsJoinCallLoading(false);
-      return toast({
+      router.push(`/call/${callName}`);
+    } catch (error) {
+      console.error("Error during fetch:", error);
+      setIsJoinCallLoading(false);
+      toast({
         title: "Something went wrong.",
         description: "This call cannot be joined. Please try again.",
         variant: "destructive",
       });
     }
-
-    setIsJoinCallLoading(false);
-    router.push(`/call/${callName}`);
   }
 
   return (

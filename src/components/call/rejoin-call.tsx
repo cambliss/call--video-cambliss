@@ -1,9 +1,12 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
+"use client";
+
+import * as React from "react";
 import { Button } from "../ui/button";
 import { useRouter } from "next/navigation";
 import { useToast } from "../ui/use-toast";
 import { useHMSActions } from "@100mslive/react-sdk";
-import * as React from "react";
+import Cookies from "js-cookie";
 
 export default function RejoinCall({
   roomName,
@@ -20,6 +23,9 @@ export default function RejoinCall({
   const [secondsLeft, setSecondsLeft] = React.useState(60); // 60 seconds countdown
 
   const leaveCall = React.useCallback(async () => {
+    // 👇 get username from cookie for guest users
+    const username = Cookies.get("username");
+
     const response = await fetch(`/api/call/leave`, {
       method: "PATCH",
       headers: {
@@ -28,6 +34,8 @@ export default function RejoinCall({
       body: JSON.stringify({
         callName: roomName,
         roomId: roomId,
+        // this will be used in API when there is no session
+        userName: username,
       }),
     });
 

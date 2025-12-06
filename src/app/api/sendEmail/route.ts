@@ -8,23 +8,24 @@ import { type ErrorResponse } from "resend";
 const resend = new Resend(env.RESEND_API_KEY);
 
 const emailSchema = z.object({
-  recipient: z.string(),
-  link: z.string(),
+  recipient: z.string().email(),
+  link: z.string().url(),
   recipientUsername: z.string(),
-  senderImage: z.string(),
+  senderImage: z.string().optional().default(""),
   invitedByUsername: z.string(),
-  invitedByEmail: z.string(),
+  invitedByEmail: z.string().email(),
 });
 
 export async function POST(req: Request) {
-  const json: EmailProps = (await req.json()) as EmailProps;
+  const json = (await req.json()) as EmailProps;
   const body = emailSchema.parse(json);
 
   try {
     const { error } = await resend.emails.send({
-      from: `Callsquare <${body.invitedByEmail}>`,
+      // ✅ Use a verified sender here
+      from: `Cambliss Meet <no-reply@cambliss.com>`,
       to: body.recipient,
-      subject: "Invitation to join call on Callsquare",
+      subject: "Invitation to join a Cambliss Meet call",
       react: InviteEmail({
         recipientUsername: body.recipientUsername,
         senderImage: body.senderImage,
@@ -32,7 +33,7 @@ export async function POST(req: Request) {
         invitedByEmail: body.invitedByEmail,
         inviteLink: body.link,
       }),
-      text: "Invitation to join call on Callsquare",
+      text: "You’ve been invited to join a call on Cambliss Meet.",
     });
 
     if (error) {
@@ -45,7 +46,7 @@ export async function POST(req: Request) {
     const resendError = error as ErrorResponse;
 
     if (resendError?.message) {
-      return new Response(resendError?.message, { status: 429 });
+      return new Response(resendError.message, { status: 429 });
     }
 
     if (error instanceof Error) {

@@ -1,24 +1,22 @@
 export type SiteConfig = {
-    name: string
-    description: string
-    url: string
-    ogImage: string
-    links: {
-      twitter: string
-      github: string
-    }
-}
+  name: string;
+  description: string;
+  url: string;
+  ogImage: string;
+  links: {
+    twitter: string;
+    github: string;
+  };
+};
 
 export const siteConfig: SiteConfig = {
-  name: "Cambliss cloud",
+  name: "Cambliss Meet",
   description:
-    "Instant video meetings for teams, clients & classes.",
-  url: "https://callsquare.jaleelbennett.com",
-  ogImage: "https://callsquare.jaleelbennett.com/web-shot.png",
+    "Instant video meetings for teams, clients, students & enterprises — powered by Cambliss Cloud.",
+  url: "https://meet.cambliss.com",
+  ogImage: "https://meet.cambliss.com/og-image.png",
   links: {
-    twitter: "https://twitter.com/jal_eelll",
-    github: "https://github.com/JaleelB/callsquare",
+    twitter: "https://twitter.com/cambliss",
+    github: "https://github.com/cambliss",
   },
-}
-
-// No favicon is set in this file, so no changes are needed.
+};

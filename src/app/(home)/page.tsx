@@ -1,369 +1,589 @@
-"use client";
+// src/app/(home)/page.tsx
 
-import React from "react";
+import type { ReactNode } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Badge, badgeVariants } from "~/components/ui/badge";
-import { Icons } from "~/components/ui/icons";
+import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
+import { Icons } from "~/components/ui/icons";
 import { siteConfig } from "~/config/site-config";
-
-declare global {
-  interface Window {
-    Razorpay: any;
-  }
-}
-
-function openRazorpay(amount: number, plan: string, email: string) {
-  const options = {
-    key: "YOUR_RAZORPAY_KEY_ID", // Replace with your Razorpay Key ID
-    amount: amount * 100, // Amount in paise
-    currency: "INR",
-    name: "Cambliss Meet",
-    description: `${plan} Plan Subscription`,
-    handler: function (response: any) {
-      // Send confirmation email here (call your backend API)
-      fetch("/api/send-confirmation", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email,
-          plan,
-          paymentId: response.razorpay_payment_id,
-        }),
-      });
-      alert("Payment successful! Confirmation email sent.");
-    },
-    prefill: {
-      email: email,
-    },
-    theme: { color: "#6366f1" },
-  };
-  const rzp = new window.Razorpay(options);
-  rzp.open();
-}
-
-type Tool = {
-  name: string;
-  icon: React.ReactNode;
-};
-
-type Features = {
-  description: string;
-} & Tool;
-
-const tools: Tool[] = [
-  {
-    name: "Next.js 13",
-    icon: (
-      <svg viewBox="0 0 24 24" className="h-9 w-9 fill-current">
-        <path d="M11.572 0c-.176 0-.31.001-.358.007a19.76 19.76 0 0 1-.364.033C7.443.346 4.25 2.185 2.228 5.012a11.875 11.875 0 0 0-2.119 5.243c-.096.659-.108.854-.108 1.747s.012 1.089.108 1.748c.652 4.506 3.86 8.292 8.209 9.695.779.25 1.6.422 2.534.525.363.04 1.935.04 2.299 0 1.611-.178 2.977-.577 4.323-1.264.207-.106.247-.134.219-.158-.02-.013-.9-1.193-1.955-2.62l-1.919-2.592-2.404-3.558a338.739 338.739 0 0 0-2.422-3.556c-.009-.002-.018 1.579-.023 3.51-.007 3.38-.01 3.515-.052 3.595a.426.426 0 0 1-.206.214c-.075.037-.14.044-.495.044H7.81l-.108-.068a.438.438 0 0 1-.157-.171l-.05-.106.006-4.703.007-4.705.072-.092a.645.645 0 0 1 .174-.143c.096-.047.134-.051.54-.051.478 0 .558.018.682.154.035.038 1.337 1.999 2.895 4.361a10760.433 10760.433 0 0 0 4.735 7.17l1.9 2.879.096-.063a12.317 12.317 0 0 0 2.466-2.163 11.944 11.944 0 0 0 2.824-6.134c.096-.66.108-.854.108-1.748 0-.893-.012-1.088-.108-1.747-.652-4.506-3.859-8.292-8.208-9.695a12.597 12.597 0 0 0-2.499-.523A33.119 33.119 0 0 0 11.573 0zm4.069 7.217c.347 0 .408.005.486.047a.473.473 0 0 1 .237.277c.018.06.023 1.365.018 4.304l-.006 4.218-.744-1.14-.746-1.14v-3.066c0-1.982.01-3.097.023-3.15a.478.478 0 0 1 .233-.296c.096-.05.13-.054.5-.054z" />
-      </svg>
-    ),
-  },
-  {
-    name: "React 18",
-    icon: (
-      <svg viewBox="0 0 24 24" className="h-9 w-9 fill-current">
-        <path d="M14.23 12.004a2.236 2.236 0 0 1-2.235 2.236 2.236 2.236 0 0 1-2.236-2.236 2.236 2.236 0 0 1 2.235-2.236 2.236 2.236 0 0 1 2.236 2.236zm2.648-10.69c-1.346 0-3.107.96-4.888 2.622-1.78-1.653-3.542-2.602-4.887-2.602-.41 0-.783.093-1.106.278-1.375.793-1.683 3.264-.973 6.365C1.98 8.917 0 10.42 0 12.004c0 1.59 1.99 3.097 5.043 4.03-.704 3.113-.39 5.588.988 6.38.32.187.69.275 1.102.275 1.345 0 3.107-.96 4.888-2.624 1.78 1.654 3.542 2.603 4.887 2.603.41 0 .783-.09 1.106-.275 1.374-.792 1.683-3.263.973-6.365C22.02 15.096 24 13.59 24 12.004c0-1.59-1.99-3.097-5.043-4.032.704-3.11.39-5.587-.988-6.38a2.167 2.167 0 0 0-1.092-.278zm-.005 1.09v.006c.225 0 .406.044.558.127.666.382.955 1.835.73 3.704-.054.46-.142.945-.25 1.44a23.476 23.476 0 0 0-3.107-.534A23.892 23.892 0 0 0 12.769 4.7c1.592-1.48 3.087-2.292 4.105-2.295zm-9.77.02c1.012 0 2.514.808 4.11 2.28-.686.72-1.37 1.537-2.02 2.442a22.73 22.73 0 0 0-3.113.538 15.02 15.02 0 0 1-.254-1.42c-.23-1.868.054-3.32.714-3.707.19-.09.4-.127.563-.132zm4.882 3.05c.455.468.91.992 1.36 1.564-.44-.02-.89-.034-1.345-.034-.46 0-.915.01-1.36.034.44-.572.895-1.096 1.345-1.565zM12 8.1c.74 0 1.477.034 2.202.093.406.582.802 1.203 1.183 1.86.372.64.71 1.29 1.018 1.946-.308.655-.646 1.31-1.013 1.95-.38.66-.773 1.288-1.18 1.87a25.64 25.64 0 0 1-4.412.005 26.64 26.64 0 0 1-1.183-1.86c-.372-.64-.71-1.29-1.018-1.946a25.17 25.17 0 0 1 1.013-1.954c.38-.66.773-1.286 1.18-1.868A25.245 25.245 0 0 1 12 8.098zm-3.635.254c-.24.377-.48.763-.704 1.16-.225.39-.435.782-.635 1.174-.265-.656-.49-1.31-.676-1.947.64-.15 1.315-.283 2.015-.386zm7.26 0c.695.103 1.365.23 2.006.387-.18.632-.405 1.282-.66 1.933a25.952 25.952 0 0 0-1.345-2.32zm3.063.675c.484.15.944.317 1.375.498 1.732.74 2.852 1.708 2.852 2.476-.005.768-1.125 1.74-2.857 2.475-.42.18-.88.342-1.355.493a23.966 23.966 0 0 0-1.1-2.98c.45-1.017.81-2.01 1.085-2.964zm-13.395.004c.278.96.645 1.957 1.1 2.98a23.142 23.142 0 0 0-1.086 2.964c-.484-.15-.944-.318-1.37-.5-1.732-.737-2.852-1.706-2.852-2.474 0-.768 1.12-1.742 2.852-2.476.42-.18.88-.342 1.356-.494zm11.678 4.28c.265.657.49 1.312.676 1.948-.64.157-1.316.29-2.016.39a25.819 25.819 0 0 0 1.341-2.338zm-9.945.02c.2.392.41.783.64 1.175.23.39.465.772.705 1.143a22.005 22.005 0 0 1-2.006-.386c.18-.63.406-1.282.66-1.933zM17.92 16.32c.112.493.2.968.254 1.423.23 1.868-.054 3.32-.714 3.708-.147.09-.338.128-.563.128-1.012 0-2.514-.807-4.11-2.28.686-.72 1.37-1.536 2.02-2.44 1.107-.118 2.154-.3 3.113-.54zm-11.83.01c.96.234 2.006.415 3.107.532.66.905 1.345 1.727 2.035 2.446-1.595 1.483-3.092 2.295-4.11 2.295a1.185 1.185 0 0 1-.553-.132c-.666-.38-.955-1.834-.73-3.703.054-.46.142-.944.25-1.438zm4.56.64c.44.02.89.034 1.345.034.46 0 .915-.01 1.36-.034-.44.572-.895 1.095-1.345 1.565-.455-.47-.91-.993-1.36-1.565z" />
-      </svg>
-    ),
-  },
-  {
-    name: "Next Auth",
-    icon: (
-      <svg
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1"
-        className="h-9 w-9 fill-current"
-      >
-        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-      </svg>
-    ),
-  },
-  {
-    name: "Tailwind CSS",
-    icon: (
-      <svg viewBox="0 0 24 24" className="h-12 w-12 fill-current">
-        <path d="M12.001 4.8c-3.2 0-5.2 1.6-6 4.8 1.2-1.6 2.6-2.2 4.2-1.8.913.228 1.565.89 2.288 1.624C13.666 10.618 15.027 12 18.001 12c3.2 0 5.2-1.6 6-4.8-1.2 1.6-2.6 2.2-4.2 1.8-.913-.228-1.565-.89-2.288-1.624C16.337 6.182 14.976 4.8 12.001 4.8zm-6 7.2c-3.2 0-5.2 1.6-6 4.8 1.2-1.6 2.6-2.2 4.2-1.8.913.228 1.565.89 2.288 1.624 1.177 1.194 2.538 2.576 5.512 2.576 3.2 0 5.2-1.6 6-4.8-1.2 1.6-2.6 2.2-4.2 1.8-.913-.228-1.565-.89-2.288-1.624C10.337 13.382 8.976 12 6.001 12z" />
-      </svg>
-    ),
-  },
-  {
-    name: "Radix UI",
-    icon: (
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="4 0 17 25"
-        className="h-9 w-9 fill-current"
-      >
-        <path d="M12 25a8 8 0 1 1 0-16v16zM12 0H4v8h8V0zM17 8a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" />
-      </svg>
-    ),
-  },
-  {
-    name: "Prisma",
-    icon: (
-      <svg
-        viewBox="0.34 -0.059977834648891726 33.11668247084116 39.96397783464889"
-        xmlns="http://www.w3.org/2000/svg"
-        className="h-9 w-9 fill-current"
-      >
-        <path
-          d="M32.908 30.475L19.151 1.26a2.208 2.208 0 0 0-1.88-1.257 2.183 2.183 0 0 0-2.01 1.042L.34 25.212a2.26 2.26 0 0 0 .025 2.426L7.66 38.935a2.346 2.346 0 0 0 2.635.969l21.17-6.262a2.32 2.32 0 0 0 1.457-1.258 2.27 2.27 0 0 0-.013-1.91zm-3.08 1.253L11.864 37.04c-.548.163-1.074-.312-.96-.865l6.418-30.731c.12-.575.914-.666 1.165-.134l11.881 25.23a.858.858 0 0 1-.541 1.188z"
-          clipRule="evenodd"
-          fillRule="evenodd"
-        />
-      </svg>
-    ),
-  },
-];
-
-const features: Features[] = [
-  {
-    name: "Partcipent Invites",
-    description:
-      "Invite participants to your meeting via an invite link or an invite email.",
-    icon: (
-      <svg
-        viewBox="0 0 19 16"
-        xmlns="http://www.w3.org/2000/svg"
-        className="h-6 w-6 fill-current"
-      >
-        <path
-          d="M17.8337 3C17.8337 2.08333 17.0837 1.33333 16.167 1.33333H2.83366C1.91699 1.33333 1.16699 2.08333 1.16699 3M17.8337 3V13C17.8337 13.9167 17.0837 14.6667 16.167 14.6667H2.83366C1.91699 14.6667 1.16699 13.9167 1.16699 13V3M17.8337 3L9.50033 8.83333L1.16699 3"
-          strokeWidth="1.66667"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-    ),
-  },
-  {
-    name: "Screen Sharing",
-    description: "Share your screen with other participants in your call.",
-    icon: (
-      <svg
-        viewBox="0 0 19 16"
-        xmlns="http://www.w3.org/2000/svg"
-        className="h-6 w-6 fill-current"
-      >
-        <path
-          d="M16.167 1.33333H2.83366C1.91699 1.33333 1.16699 2.08333 1.16699 3V13C1.16699 13.9167 1.91699 14.6667 2.83366 14.6667H16.167C17.0837 14.6667 17.8337 13.9167 17.8337 13V3C17.8337 2.08333 17.0837 1.33333 16.167 1.33333Z"
-          strokeWidth="1.66667"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        <path
-          d="M9.50033 8.83333L1.16699 3"
-          strokeWidth="1.66667"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-    ),
-  },
-  {
-    name: "Accessing call history",
-    description:
-      "Keep track of your past interactions with the call history feature.",
-    icon: (
-      <svg
-        viewBox="0 0 19 16"
-        xmlns="http://www.w3.org/2000/svg"
-        className="h-6 w-6 fill-current"
-      >
-        <path
-          d="M16.167 1.33333H2.83366C1.91699 1.33333 1.16699 2.08333 1.16699 3V13C1.16699 13.9167 1.91699 14.6667 2.83366 14.6667H16.167C17.0837 14.6667 17.8337 13.9167 17.8337 13V3C17.8337 2.08333 17.0837 1.33333 16.167 1.33333Z"
-          strokeWidth="1.66667"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        <path
-          d="M9.50033 8.83333L1.16699 3"
-          strokeWidth="1.66667"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-    ),
-  },
-];
-
-export default function IndexPage() {
+import ContactSection from "~/components/layout/contact-section";
+export default function HomePage() {
   return (
-    <div className="bg-black min-h-screen text-white" style={{ background: "linear-gradient(135deg, #111 60%, #fff 100%)" }}>
-      <section className="container mx-auto max-w-[1400px] py-16 lg:py-24">
-        <div className="flex flex-col items-center gap-16 text-center">
-          <div className="flex flex-col items-center justify-center gap-4 sm:gap-8">
-            <h1 className="max-w-4xl text-3xl font-semibold leading-tight md:text-6xl text-yellow-400">
-              Cambliss Meet – Smart Video Meetings for Modern Work
+    <div className="min-h-screen w-full bg-black text-white">
+      {/* Background layers */}
+      <div className="pointer-events-none fixed inset-0 -z-10">
+        {/* radial glow */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_#FFD600_0,_#020617_55%,_#000_100%)] opacity-80" />
+        {/* subtle grid */}
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.08)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.08)_1px,transparent_1px)] bg-[size:90px_90px]" />
+        {/* blurred orbs */}
+        <div className="absolute -left-40 top-40 h-72 w-72 rounded-full bg-[#FFD600]/15 blur-3xl" />
+        <div className="absolute right-0 top-1/3 h-80 w-80 rounded-full bg-[#fff]/10 blur-3xl" />
+      </div>
+      <main className="relative">
+        {/* HERO */}
+        <section className="container mx-auto flex max-w-6xl flex-col gap-12 px-4 pb-24 pt-20 md:flex-row md:items-center md:gap-16 lg:pt-28">
+          {/* Left column */}
+          <div className="flex-1 space-y-7">
+            <div className="inline-flex items-center gap-2 rounded-full border border-yellow-400/40 bg-black/50 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.2em] text-yellow-300">
+              <span className="inline-flex h-1.5 w-1.5 rounded-full bg-yellow-400" />
+              <span>Cambliss Meet • HD Video Collaboration</span>
+            </div>
+            <h1 className="text-balance text-3xl font-semibold leading-tight text-white sm:text-4xl md:text-5xl lg:text-[52px] lg:leading-[1.05]">
+              Run{" "}
+              <span className="bg-gradient-to-r from-yellow-300 via-yellow-400 to-yellow-500 bg-clip-text text-transparent">
+                flawless video meetings
+              </span>{" "}
+              for clients, teams & classes.
             </h1>
-            <p className="max-w-2xl text-base sm:text-lg text-yellow-200">
-              {siteConfig.description}
+            <p className="max-w-xl text-sm leading-relaxed text-white/80 sm:text-base">
+              {siteConfig.description ??
+                "Spin up meetings in seconds, share your screen beautifully, invite anyone with a link, and keep every interaction organised under a clean, intelligent dashboard."}
             </p>
-            <Link href="/register">
-              <Button size="lg" className="py-6 font-normal bg-yellow-400 text-black hover:bg-yellow-500 transition rounded-lg">
-                Get Started
-              </Button>
-            </Link>
-          </div>
-          <Image
-            src="/hero-image.png"
-            width={1200}
-            height={800}
-            alt="Hero Image"
-            className="rounded-2xl border-4 border-yellow-400 shadow-lg"
-          />
-        </div>
-      </section>
-
-      <section className="container mx-auto max-w-[1800px] pb-12 md:pb-16 lg:pb-24">
-        <div className="flex w-full flex-col items-center gap-8 text-center">
-          <Badge variant="secondary" className="mb-2 bg-yellow-400 text-black">KEY FEATURES</Badge>
-          <h2 className="mb-4 text-3xl font-semibold sm:text-5xl text-yellow-400">Our Features</h2>
-          <div className="mx-auto grid w-full max-w-6xl grid-cols-1 sm:grid-cols-2 gap-10">
-            <div className="feature-card flex flex-col items-center gap-4 rounded-2xl border-2 border-yellow-400 bg-black p-10 shadow-lg transition hover:shadow-xl hover:border-yellow-500">
-              <Icons.video className="h-16 w-16 text-yellow-400" />
-              <h3 className="text-xl font-semibold text-yellow-400">High-Definition Video Calls</h3>
-              <p className="text-base text-yellow-200">
-                Experience crystal-clear video meetings designed for seamless communication—no lag, no interruptions, just smooth collaboration.
-              </p>
+            <div className="flex flex-wrap items-center gap-4">
+              <Link href="/register">
+                <Button className="group rounded-full bg-yellow-400 px-7 py-2 text-sm font-semibold uppercase tracking-wide text-black shadow-[0_0_40px_rgba(250,204,21,0.6)] transition hover:-translate-y-0.5 hover:bg-yellow-300">
+                  <Icons.video className="mr-2 h-4 w-4 transition group-hover:scale-110" />
+                  Get Started Free
+                </Button>
+              </Link>
+              <Link href="/login">
+                <Button
+                  variant="outline"
+                  className="rounded-full border-yellow-300/70 bg-transparent px-6 py-2 text-sm font-semibold uppercase tracking-wide text-white hover:bg-yellow-300 hover:text-black"
+                >
+                  <Icons.arrow className="mr-2 h-4 w-4 rotate-180" />
+                  Go to Dashboard
+                </Button>
+              </Link>
             </div>
-            <div className="feature-card flex flex-col items-center gap-4 rounded-2xl border-2 border-yellow-400 bg-black p-10 shadow-lg transition hover:shadow-xl hover:border-yellow-500">
-              <Icons.settings className="h-16 w-16 text-yellow-400" />
-              <h3 className="text-xl font-semibold text-yellow-400">Participant Invites Made Simple</h3>
-              <p className="text-base text-yellow-200">
-                Invite anyone with a single click. Share a meeting link, send email invites instantly. No login required for participants.
-              </p>
-            </div>
-            <div className="feature-card flex flex-col items-center gap-4 rounded-2xl border-2 border-yellow-400 bg-black p-10 shadow-lg transition hover:shadow-xl hover:border-yellow-500">
-              <Icons.camera className="h-16 w-16 text-yellow-400" />
-              <h3 className="text-xl font-semibold text-yellow-400">Screen Sharing</h3>
-              <p className="text-base text-yellow-200">
-                Share your presentations, demos, or documents in real time with unmatched clarity. Perfect for training, client meetings, and team collaboration.
-              </p>
-            </div>
-            <div className="feature-card flex flex-col items-center gap-4 rounded-2xl border-2 border-yellow-400 bg-black p-10 shadow-lg transition hover:shadow-xl hover:border-yellow-500">
-              <Icons.ellipsis className="h-16 w-16 text-yellow-400" />
-              <h3 className="text-xl font-semibold text-yellow-400">Call History & Interaction Logs</h3>
-              <p className="text-base text-yellow-200">
-                Keep track of every call, meeting, and conversation. Review past calls, track participants, and monitor communication patterns.
-              </p>
+            {/* Hero stats row */}
+            <div className="mt-4 flex flex-wrap items-center gap-6 text-xs text-yellow-300 sm:text-sm">
+              <StatPill label="Avg. call uptime" value="99.9%" />
+              <StatPill label="Teams onboarded" value="50+" />
+              <StatPill label="Max participants" value="250 per call" />
             </div>
           </div>
-        </div>
-      </section>
 
-      <section className="container mx-auto max-w-[1600px] px-6 py-20">
-        <div className="flex w-full max-w-6xl flex-col items-center gap-12 text-center mx-auto">
-          <h2 className="text-3xl font-semibold sm:text-4xl text-yellow-400">How it works</h2>
-          <div className="flex flex-wrap justify-center gap-12 w-full">
-            <div className="flex flex-col flex-1 min-w-[260px] max-w-[340px] items-center gap-6 rounded-2xl border-2 border-yellow-400 bg-black p-10 shadow-xl transition hover:shadow-2xl hover:border-yellow-500">
-              <div className="flex items-center justify-center rounded-full bg-yellow-400/20 p-5 mb-2">
-                <Icons.avatar className="h-14 w-14 text-yellow-400" />
+          {/* Right column – hero mock */}
+          <div className="flex-1">
+            <div className="relative mx-auto max-w-md">
+              {/* Glow ring */}
+              <div className="absolute -inset-1 rounded-[26px] bg-gradient-to-tr from-yellow-400/40 via-amber-300/10 to-cyan-300/40 opacity-80 blur-xl" />
+              {/* Card */}
+              <div className="relative rounded-[26px] border border-yellow-400/30 bg-gradient-to-br from-black/80 via-slate-950/95 to-black/90 p-4 shadow-[0_18px_60px_rgba(0,0,0,0.9)] backdrop-blur-2xl">
+                {/* Top bar */}
+                <div className="flex items-center justify-between rounded-2xl bg-black/60 px-4 py-3">
+                  <div className="flex items-center gap-2">
+                    <div className="flex h-7 w-7 items-center justify-center rounded-full bg-yellow-400/10 text-yellow-300">
+                      <Icons.camera className="h-4 w-4" />
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-xs font-medium text-yellow-50">
+                        Client Review – Q4 Sprint
+                      </span>
+                      <span className="text-[11px] text-yellow-100/60">
+                        Cambliss Meet • Live
+                      </span>
+                    </div>
+                  </div>
+                  <span className="rounded-full bg-green-500/10 px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-green-400">
+                    00:24:12
+                  </span>
+                </div>
+
+                {/* Main video grid mock */}
+                <div className="mt-3 grid gap-2 rounded-2xl border border-yellow-400/20 bg-black/70 p-2 md:grid-cols-2">
+                  <VideoTile name="You" label="Speaking" accent="primary" />
+                  <VideoTile name="Client" label="Reviewing" />
+                  <VideoTile name="Design Lead" label="Listening" />
+                  <VideoTile name="Engineer" label="Sharing screen" />
+                </div>
+
+                {/* Bottom bar with controls */}
+                <div className="mt-4 flex items-center justify-between rounded-2xl border border-yellow-400/25 bg-black/70 px-4 py-3">
+                  <div className="flex items-center gap-2">
+                    <AvatarPill />
+                    <p className="text-[11px] text-yellow-100/80">
+                      12 participants · Recording off
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <IconCircle>
+                      <Icons.camera className="h-3.5 w-3.5" />
+                    </IconCircle>
+                    <IconCircle>
+                      <Icons.video className="h-3.5 w-3.5" />
+                    </IconCircle>
+                    <IconCircle className="bg-red-500 text-white hover:bg-red-400">
+                      <Icons.arrow className="h-3.5 w-3.5 rotate-90" />
+                    </IconCircle>
+                  </div>
+                </div>
               </div>
-              <h3 className="text-xl font-semibold text-yellow-400">Sign up or log in</h3>
-              <p className="text-base text-yellow-200">
-                Create an account using your email / Google.
-              </p>
-            </div>
-            <div className="flex flex-col flex-1 min-w-[260px] max-w-[340px] items-center gap-6 rounded-2xl border-2 border-yellow-400 bg-black p-10 shadow-xl transition hover:shadow-2xl hover:border-yellow-500">
-              <div className="flex items-center justify-center rounded-full bg-yellow-400/20 p-5 mb-2">
-                <Icons.add className="h-14 w-14 text-yellow-400" />
+
+              {/* Floating mini card */}
+              <div className="absolute -bottom-6 -left-4 hidden w-40 rounded-2xl border border-yellow-400/40 bg-black/90 px-3 py-2 text-[11px] text-yellow-100/90 shadow-xl sm:flex sm:flex-col">
+                <span className="text-[10px] uppercase tracking-[0.18em] text-yellow-500/90">
+                  Upcoming
+                </span>
+                <span className="mt-1 font-medium">Team standup • 11:00 AM</span>
+                <span className="text-[10px] text-yellow-100/70">
+                  8 invited · Auto-record enabled
+                </span>
               </div>
-              <h3 className="text-xl font-semibold text-yellow-400">Create a meeting</h3>
-              <p className="text-base text-yellow-200">
-                Start a new room from your dashboard and configure basic options.
-              </p>
-            </div>
-            <div className="flex flex-col flex-1 min-w-[260px] max-w-[340px] items-center gap-6 rounded-2xl border-2 border-yellow-400 bg-black p-10 shadow-xl transition hover:shadow-2xl hover:border-yellow-500">
-              <div className="flex items-center justify-center rounded-full bg-yellow-400/20 p-5 mb-2">
-                <Icons.arrow className="h-14 w-14 text-yellow-400" />
-              </div>
-              <h3 className="text-xl font-semibold text-yellow-400">Share & join</h3>
-              <p className="text-base text-yellow-200">
-                Copy the meeting link, share it with participants, and start the call.
-              </p>
-            </div>
-            <div className="flex flex-col flex-1 min-w-[260px] max-w-[340px] items-center gap-6 rounded-2xl border-2 border-yellow-400 bg-black p-10 shadow-xl transition hover:shadow-2xl hover:border-yellow-500">
-              <div className="flex items-center justify-center rounded-full bg-yellow-400/20 p-5 mb-2">
-                <Icons.ellipsis className="h-14 w-14 text-yellow-400" />
-              </div>
-              <h3 className="text-xl font-semibold text-yellow-400">Review & Collaborate</h3>
-              <p className="text-base text-yellow-200">
-                Access history, share files, and collaborate with your team.
-              </p>
-            </div>
-            <div className="flex flex-col flex-1 min-w-[260px] max-w-[340px] items-center gap-6 rounded-2xl border-2 border-yellow-400 bg-black p-10 shadow-xl transition hover:shadow-2xl hover:border-yellow-500">
-              <div className="flex items-center justify-center rounded-full bg-yellow-400/20 p-5 mb-2">
-                <Icons.camera className="h-14 w-14 text-yellow-400" />
-              </div>
-              <h3 className="text-xl font-semibold text-yellow-400">Get Support</h3>
-              <p className="text-base text-yellow-200">
-                Reach out to our support team for help & troubleshooting.
-              </p>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      <section className="container mx-auto max-w-[1200px] px-4 py-12 md:py-20">
-        <div className="flex flex-col items-center gap-8 text-center">
-          <h2 className="text-3xl font-bold sm:text-4xl mb-4 text-yellow-400">About Cambliss Meet</h2>
-          <p className="max-w-3xl text-lg text-yellow-200">
-            Cambliss Meet is a video calling platform built by Cambliss Studio for modern remote teams, educators, and consultants.<br /><br />
-            It combines secure authentication, reliable 100ms-powered video infrastructure, and a clean dashboard experience so you can focus on the conversation—not the tech.<br /><br />
-            Whether you’re hosting a daily standup, an online class, a client review, or a quick support call, Cambliss Meet helps you spin up rooms instantly, share a link, and collaborate in real time.
-          </p>
-        </div>
-      </section>
+        {/* TRUST STRIP */}
+        <section className="border-y border-yellow-400/15 bg-black/40">
+          <div className="container mx-auto flex max-w-6xl flex-col items-center gap-4 px-4 py-6 text-center md:flex-row md:justify-between">
+            <p className="text-xs font-medium uppercase tracking-[0.2em] text-yellow-300">
+              BUILT FOR MODERN WORKFLOWS
+            </p>
+            <div className="flex flex-wrap items-center justify-center gap-5 text-[11px] text-white/60 sm:gap-8">
+              <span>Agencies</span>
+              <span className="h-4 w-px bg-yellow-400/30" />
+              <span>Coaching & Classes</span>
+              <span className="h-4 w-px bg-yellow-400/30" />
+              <span>Consulting & Sales</span>
+              <span className="h-4 w-px bg-yellow-400/30" />
+              <span>Internal Teams</span>
+            </div>
+          </div>
+        </section>
 
-      <section className="container mx-auto max-w-[700px] px-4 py-16">
-        <div className="flex flex-col items-center gap-8 text-center">
-          <h2 className="text-3xl font-bold sm:text-4xl mb-4 text-yellow-400">Contact Us</h2>
-          <form className="w-full flex flex-col gap-6 bg-black border-2 border-yellow-400 rounded-2xl p-8 shadow-lg">
-            <div className="flex flex-col gap-2">
-              <label htmlFor="name" className="text-left font-medium text-yellow-400">Name</label>
-              <input
-                id="name"
-                name="name"
-                type="text"
-                required
-                className="rounded-lg border border-yellow-400 px-4 py-2 bg-yellow-100/10 text-white focus:outline-none focus:border-yellow-400"
-                placeholder="Your name"
+        {/* FEATURES GRID */}
+        <section className="container mx-auto max-w-6xl px-4 pb-16 pt-14 md:pb-20">
+          <div className="mb-10 flex flex-col items-center text-center">
+            <Badge className="mb-3 border border-yellow-400/40 bg-yellow-400/10 text-yellow-300">
+              WHY TEAMS CHOOSE CAMBLISS MEET
+            </Badge>
+            <h2 className="text-balance text-2xl font-semibold text-white sm:text-3xl md:text-[32px]">
+              A meeting layer that feels tailored to your brand
+            </h2>
+            <p className="mt-2 max-w-xl text-sm text-white/75 sm:text-base">
+              From 1:1s to 200+ attendee sessions, Cambliss Meet gives you
+              consistent quality, clear structure, and a UI your clients will
+              actually enjoy.
+            </p>
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-3">
+            <FeatureCard
+              icon={<Icons.video className="h-7 w-7 text-yellow-300" />}
+              title="HD video & reliable audio"
+              description="Powered by 100ms infrastructure for low-latency, high-quality calls that stay crisp even on less-than-perfect networks."
+            />
+            <FeatureCard
+              icon={<Icons.settings className="h-7 w-7 text-yellow-300" />}
+              title="Frictionless joining"
+              description="Send a link, they join. No messy onboarding, no extra accounts. Perfect for clients, guests, and external teams."
+            />
+            <FeatureCard
+              icon={<Icons.video className="h-7 w-7 text-yellow-300" />}
+              title="Beautiful screen sharing"
+              description="Present decks, demos, or walkthroughs in a polished, distraction-free layout optimised for focus."
+            />
+            <FeatureCard
+              icon={<Icons.ellipsis className="h-7 w-7 text-yellow-300" />}
+              title="Clear call history"
+              description="See who joined, when, and for how long. Great for ops, sales, training, and follow-up notes."
+            />
+            <FeatureCard
+              icon={<Icons.settings className="h-7 w-7 text-yellow-300" />}
+              title="Secure & private rooms"
+              description="Auth-protected access, host controls, and private links ensure your discussions stay in the right room."
+            />
+            <FeatureCard
+              icon={<Icons.logo className="h-7 w-7 text-yellow-300" />}
+              title="Cambliss-first experience"
+              description="The entire experience feels premium, minimal, and on-brand — not like a generic off-the-shelf tool."
+            />
+          </div>
+        </section>
+
+        {/* HOW IT FLOWS */}
+        <section className="container mx-auto max-w-6xl px-4 pb-18 pb-20">
+          <div className="mb-10 flex flex-col items-center text-center">
+            <Badge className="mb-3 border border-yellow-400/40 bg-yellow-400/10 text-yellow-300">
+              HOW IT WORKS
+            </Badge>
+            <h2 className="text-2xl font-semibold text-yellow-50 sm:text-3xl">
+              From idea to live call in under a minute
+            </h2>
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-4">
+            <StepCard
+              step="01"
+              title="Create your account"
+              description="Sign up with email or Google – you’ll land in a clean dashboard made for fast actions."
+            />
+            <StepCard
+              step="02"
+              title="Start or schedule a call"
+              description="Spin up an instant room or create a link for later with just a couple of clicks."
+            />
+            <StepCard
+              step="03"
+              title="Invite your people"
+              description="Copy the link, share it with your team, clients, or students – they can join in seconds."
+            />
+            <StepCard
+              step="04"
+              title="Collaborate in real time"
+              description="Share screen, talk, review, and close loops with a layout built for modern collaboration."
+            />
+          </div>
+        </section>
+
+        {/* PRICING */}
+        <section className="relative mx-auto mb-24 max-w-5xl px-4">
+          <div className="pointer-events-none absolute inset-x-10 top-0 -z-10 h-full rounded-[40px] bg-gradient-to-b from-yellow-400/10 via-yellow-400/0 to-white/10 blur-3xl" />
+
+          <div className="rounded-[32px] border border-yellow-400/25 bg-black/70 px-5 py-10 shadow-[0_25px_80px_rgba(0,0,0,0.85)] backdrop-blur-2xl sm:px-8 md:px-10">
+            <div className="mb-8 flex flex-col items-center text-center">
+              <Badge className="mb-3 border border-yellow-400/40 bg-yellow-400/10 text-yellow-300">
+                SUBSCRIPTION PLANS
+              </Badge>
+              <h2 className="text-2xl font-semibold text-yellow-50 sm:text-3xl">
+                Choose a plan that matches your meeting room
+              </h2>
+              <p className="mt-2 max-w-xl text-sm text-yellow-100/80 sm:text-base">
+                Start with Starter and upgrade as your team, classes, or
+                client-load grows. All plans support unlimited meetings.
+              </p>
+            </div>
+
+            <div className="grid gap-6 md:grid-cols-3">
+              <PriceCard
+                label="Starter"
+                price="499"
+                highlight={false}
+                tag="For freelancers & tiny teams"
+                features={[
+                  "Up to 10 participants per call",
+                  "HD video & audio",
+                  "Screen sharing",
+                  "Basic call history",
+                ]}
+              />
+              <PriceCard
+                label="Professional"
+                price="1,499"
+                highlight
+                tag="Perfect for growing teams"
+                features={[
+                  "Up to 50 participants per call",
+                  "Advanced call history",
+                  "Priority routing",
+                  "Unlimited meetings",
+                ]}
+              />
+              <PriceCard
+                label="Enterprise"
+                price="3,999"
+                highlight={false}
+                tag="For agencies & large orgs"
+                features={[
+                  "Up to 250 participants per call",
+                  "Custom branding",
+                  "Admin controls",
+                  "Premium support",
+                ]}
               />
             </div>
-            <div className="flex flex-col gap-2">
-              <label htmlFor="email" className="text-left font-medium text-yellow-400">Email</label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                required
-                className="rounded-lg border border-yellow-400 px-4 py-2 bg-yellow-100/10 text-white focus:outline-none focus:border-yellow-400"
-                placeholder="you@email.com"
-              />
+
+            <div className="mt-8 flex flex-col items-center gap-3 text-center sm:flex-row sm:justify-between">
+              <p className="text-xs text-yellow-100/75 sm:text-sm">
+                Prices in INR. Upgrade or downgrade anytime from your Cambliss
+                dashboard.
+              </p>
+              <Link href="/register">
+                <Button className="rounded-full bg-yellow-400 px-8 py-2 text-xs font-semibold uppercase tracking-wide text-black hover:bg-yellow-300">
+                  Start with Starter plan
+                </Button>
+              </Link>
             </div>
-            <div className="flex flex-col gap-2">
-              <label htmlFor="message" className="text-left font-medium text-yellow-400">Message</label>
-              <textarea
-                id="message"
-                name="message"
-                required
-                rows={4}
-                className="rounded-lg border border-yellow-400 px-4 py-2 bg-yellow-100/10 text-white focus:outline-none focus:border-yellow-400"
-                placeholder="How can we help you?"
-              />
+          </div>
+        </section>
+
+        {/* ABOUT US */}
+        <section className="container mx-auto max-w-6xl px-4 pb-20">
+          <div className="grid gap-10 md:grid-cols-[1.2fr,1fr] items-center">
+            <div>
+              <Badge className="mb-3 border border-yellow-400/40 bg-yellow-400/10 text-yellow-300">
+                ABOUT CAMBLISS MEET
+              </Badge>
+              <h2 className="text-2xl font-semibold text-yellow-50 sm:text-3xl">
+                Built by Cambliss for serious, everyday collaboration
+              </h2>
+              <p className="mt-3 text-sm text-yellow-100/80 sm:text-base">
+                Cambliss Meet is part of the broader Cambliss ecosystem – a suite of
+                tools crafted for creators, educators, agencies, and fast-moving teams.
+                We&apos;ve spent countless hours inside client calls, student sessions, and
+                internal standups, and we know exactly where traditional tools break.
+              </p>
+              <p className="mt-3 text-sm text-yellow-100/80 sm:text-base">
+                This product is opinionated: clean layouts, zero clutter, and a flow
+                that respects your time. You create the value in the meeting – our job
+                is to make sure the tech never gets in the way.
+              </p>
+              <div className="mt-5 flex flex-wrap gap-3 text-xs text-yellow-100/75">
+                <span className="rounded-full border border-yellow-400/40 bg-black/60 px-3 py-1">
+                  Made in India · Built for global teams
+                </span>
+                <span className="rounded-full border border-yellow-400/40 bg-black/60 px-3 py-1">
+                  Optimised for agencies, educators & consultants
+                </span>
+              </div>
             </div>
-            <Button type="submit" size="lg" className="w-full bg-yellow-400 text-black rounded-lg py-2 font-medium hover:bg-yellow-500 transition">
-              Send Message
-            </Button>
-          </form>
+
+            <div className="rounded-3xl border border-yellow-400/30 bg-black/70 p-5 shadow-[0_20px_60px_rgba(0,0,0,0.85)]">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-yellow-400/15 text-yellow-300">
+                  <Icons.logo className="h-6 w-6" />
+                </div>
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-yellow-400">
+                    CAMBLISS CLOUD
+                  </p>
+                  <p className="text-sm text-yellow-50">
+                    A unified layer for meetings, learning & collaboration.
+                  </p>
+                </div>
+              </div>
+              <div className="mt-4 space-y-2 text-xs text-yellow-100/80">
+                <p>• Built on modern video infrastructure (100ms)</p>
+                <p>• Seamless integration with Cambliss dashboards & products</p>
+                <p>• Designed to scale from solo creators to larger organisations</p>
+              </div>
+            </div>
+          </div>
+        </section>
+        <ContactSection />
+        {/* FINAL CTA STRIP */}
+        <section className="border-t border-yellow-400/20 bg-black/70">
+          <div className="container mx-auto flex max-w-5xl flex-col items-center justify-between gap-4 px-4 py-8 text-center sm:flex-row sm:text-left">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-yellow-400">
+                READY WHEN YOU ARE
+              </p>
+              <h3 className="mt-1 text-sm text-yellow-50 sm:text-base">
+                Turn Cambliss Meet into your everyday meeting room in under 2
+                minutes.
+              </h3>
+            </div>
+            <div className="flex gap-3">
+              <Link href="/register">
+                <Button className="rounded-full bg-yellow-400 px-6 py-2 text-xs font-semibold uppercase tracking-wide text-black hover:bg-yellow-300">
+                  Get Started
+                </Button>
+              </Link>
+              <Link href="/login">
+                <Button
+                  variant="outline"
+                  className="rounded-full border-yellow-400/60 bg-transparent px-6 py-2 text-xs font-semibold uppercase tracking-wide text-yellow-100 hover:bg-yellow-300 hover:text-black"
+                >
+                  Go to Dashboard
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  );
+}
+
+/* ---------- Small UI building blocks ---------- */
+
+function StatPill({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="inline-flex items-center gap-2 rounded-full border border-yellow-400/30 bg-black/60 px-3 py-1">
+      <span className="text-[11px] text-yellow-100/70">{label}</span>
+      <span className="text-xs font-semibold text-yellow-300">{value}</span>
+    </div>
+  );
+}
+
+function IconCircle({
+  children,
+  className = "",
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <button
+      type="button"
+      className={`flex h-8 w-8 items-center justify-center rounded-full bg-yellow-400/15 text-yellow-200 transition hover:bg-yellow-400 hover:text-black ${className}`}
+    >
+      {children}
+    </button>
+  );
+}
+
+function AvatarPill() {
+  return (
+    <div className="flex items-center gap-2 rounded-full bg-yellow-400/10 px-3 py-1">
+      <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-yellow-400/20">
+        <Icons.avatar className="h-4 w-4 text-yellow-300" />
+      </span>
+      <span className="text-xs text-yellow-100">You</span>
+    </div>
+  );
+}
+
+function VideoTile({
+  name,
+  label,
+  accent,
+}: {
+  name: string;
+  label: string;
+  accent?: "primary";
+}) {
+  return (
+    <div className="relative h-28 rounded-2xl bg-gradient-to-br from-slate-900/90 via-black/80 to-slate-950/90 p-2">
+      <div className="absolute inset-0 rounded-2xl border border-white/5" />
+      <div className="flex h-full items-end justify-between p-2">
+        <div>
+          <p className="text-xs font-medium text-yellow-50">{name}</p>
+          <p className="text-[10px] text-yellow-100/70">{label}</p>
         </div>
-      </section>
+        <div
+          className={`rounded-full px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wide ${
+            accent === "primary"
+              ? "bg-yellow-400 text-black"
+              : "bg-black/60 text-yellow-100/80"
+          }`}
+        >
+          Live
+        </div>
+      </div>
+      {/* subtle placeholder/video pattern */}
+      <div className="pointer-events-none absolute inset-0 rounded-2xl bg-[radial-gradient(circle_at_top,_rgba(250,204,21,0.28),_transparent_55%)] opacity-70" />
+    </div>
+  );
+}
+
+function FeatureCard({
+  icon,
+  title,
+  description,
+}: {
+  icon: ReactNode;
+  title: string;
+  description: string;
+}) {
+  return (
+    <div className="group flex flex-col gap-3 rounded-2xl border border-yellow-400/25 bg-black/70 p-5 shadow-[0_0_35px_rgba(0,0,0,0.9)] backdrop-blur-md transition hover:-translate-y-1 hover:border-yellow-400/70 hover:shadow-[0_0_45px_rgba(250,204,21,0.45)]">
+      <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-yellow-400/10 text-yellow-300 transition group-hover:bg-yellow-400/20">
+        {icon}
+      </div>
+      <h3 className="text-sm font-semibold text-yellow-50 sm:text-base">
+        {title}
+      </h3>
+      <p className="text-xs text-yellow-100/80 sm:text-sm">{description}</p>
+    </div>
+  );
+}
+
+function StepCard({
+  step,
+  title,
+  description,
+}: {
+  step: string;
+  title: string;
+  description: string;
+}) {
+  return (
+    <div className="flex flex-col gap-3 rounded-2xl border border-yellow-400/25 bg-black/70 p-4 text-left shadow-lg">
+      <span className="text-[11px] font-semibold tracking-[0.22em] text-yellow-400">
+        STEP {step}
+      </span>
+      <h3 className="text-sm font-semibold text-yellow-50 sm:text-base">
+        {title}
+      </h3>
+      <p className="text-xs text-yellow-100/80 sm:text-sm">{description}</p>
+    </div>
+  );
+}
+
+function PriceCard({
+  label,
+  price,
+  tag,
+  highlight,
+  features,
+}: {
+  label: string;
+  price: string;
+  tag: string;
+  highlight?: boolean;
+  features: string[];
+}) {
+  return (
+    <div
+      className={`flex flex-col gap-4 rounded-2xl border p-6 shadow-xl transition ${
+        highlight
+          ? "border-yellow-400 bg-yellow-400 text-black"
+          : "border-yellow-400/40 bg-black/80 text-yellow-100"
+      }`}
+    >
+      {highlight && (
+        <span className="self-start rounded-full bg-black px-3 py-1 text-[10px] font-semibold uppercase tracking-wide text-yellow-400">
+          Most Popular
+        </span>
+      )}
+      <div>
+        <h3 className="text-lg font-semibold">{label}</h3>
+        <p
+          className={`text-xs ${
+            highlight ? "text-black/80" : "text-yellow-100/75"
+          }`}
+        >
+          {tag}
+        </p>
+      </div>
+      <div className="flex items-baseline gap-1">
+        <span className="text-3xl font-bold">₹{price}</span>
+        <span
+          className={`text-xs ${
+            highlight ? "text-black/70" : "text-yellow-100/70"
+          }`}
+        >
+          / month
+        </span>
+      </div>
+      <ul
+        className={`mt-1 flex flex-col gap-1.5 text-xs ${
+          highlight ? "text-black" : "text-yellow-100/85"
+        }`}
+      >
+        {features.map((f) => (
+          <li key={f} className="flex items-center gap-2">
+            <span className="inline-flex h-1.5 w-1.5 rounded-full bg-yellow-400" />
+            {f}
+          </li>
+        ))}
+      </ul>
+      <Link href="/register" className="mt-2">
+        <Button
+          className={`w-full rounded-full py-2 text-xs font-semibold uppercase tracking-wide ${
+            highlight
+              ? "bg-black text-yellow-400 hover:bg-yellow-500 hover:text-black"
+              : "bg-yellow-400 text-black hover:bg-yellow-300"
+          }`}
+        >
+          Get Started
+        </Button>
+      </Link>
     </div>
   );
 }
