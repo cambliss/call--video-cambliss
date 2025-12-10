@@ -65,41 +65,77 @@ export default function CallPage(){
       }
 
       try {
-        // Debug: log payload sent to /api/call/code
-        console.log("Sending to /api/call/code:", {
+        // Ensure callName is always a string, not an array
+        let callNameValue = roomName;
+        if (Array.isArray(params.slug)) {
+          callNameValue = params.slug[0] ?? "";
+        } else if (!callNameValue) {
+          callNameValue = params.slug?.toString() ?? "";
+        }
+
+        console.log("Sending to /api/call/join:", {
           roomId: roomId,
           hmsRoomId: hmsRoomId,
-          callName: roomName ?? params.slug,
+          callName: callNameValue,
+          userName: unAuthUsername || callNameValue || "Guest",
         });
 
-        const roomCodeResponse = await fetch(`/api/call/code`, {
+        const joinResponse = await fetch(`/api/call/join`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             roomId: roomId,
             hmsRoomId: hmsRoomId,
-            callName: roomName ?? params.slug,
+            callName: callNameValue,
+            userName: unAuthUsername || callNameValue || "Guest",
           }),
         });
 
-        if (!roomCodeResponse.ok) {
-          const errJson = await roomCodeResponse.json().catch(() => null);
-          console.error("Error from /api/call/code:", errJson);
-          throw new Error("Room code response not OK");
+        // Log status and raw response for debugging
+        console.log("joinResponse status:", joinResponse.status);
+        const rawText = await joinResponse.text();
+        console.log("Raw /api/call/join response:", rawText);
+
+        let codeResponse: { success: boolean; code?: string; error?: string } = { success: false };
+        try {
+          codeResponse = JSON.parse(rawText);
+        } catch (e) {
+          console.error("Failed to parse /api/call/join response:", rawText);
         }
 
-        const codeResponse = (await roomCodeResponse.json()) as {
-          success: boolean;
-          code?: string;
-          error?: string;
-        };
-
-        if (!codeResponse.success || !codeResponse.code) {
-          console.error("Room code error:", codeResponse);
-          throw new Error(codeResponse.error || "Missing room code");
+        if (!joinResponse.ok) {
+          // Show backend error in toast for easier debugging
+          toast({
+            title: "Server error",
+            description: codeResponse.error || rawText || "Internal Server Error",
+            variant: "destructive",
+          });
+          console.error("Error from /api/call/join:", codeResponse);
+          router.replace("/calls");
+          return;
         }
 
-        const roomCode = codeResponse.code;
+        // Fix: If /api/call/join returns participant info, you need to call /api/call/code next
+        let roomCode = codeResponse.code ?? "";
+        if (!roomCode) {
+          const roomCodeRes = await fetch(`/api/call/code`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              roomId: roomId,
+              hmsRoomId: hmsRoomId,
+              callName: roomName ?? params.slug,
+            }),
+          });
+          const roomCodeJson = await roomCodeRes.json();
+          console.log("Raw /api/call/code response:", roomCodeJson);
+
+          if (!roomCodeRes.ok || !roomCodeJson.success || !roomCodeJson.code) {
+            console.error("Room code error:", roomCodeJson);
+            throw new Error(roomCodeJson.error || "Missing room code");
+          }
+          roomCode = roomCodeJson.code;
+        }
         const authToken = await hmsActions.getAuthTokenByRoomCode({ roomCode });
 
         // Actually join the room!
@@ -109,7 +145,7 @@ export default function CallPage(){
         });
         // ... rest of your join logic
       } catch (error) {
-        console.error(error);
+        console.error("Error during fetch:", error);
         toast({
           title: "Something went wrong.",
           description: "This call cannot be joined. Please try again.",
@@ -120,7 +156,6 @@ export default function CallPage(){
     }, [hmsRoomId, roomId, roomName, params.slug, hmsActions, toast, router]);
 
     const leaveCall = React.useCallback(async () => {
-        
         const response = await fetch(`/api/call/leave`, {
             method: "PATCH",
             headers: {
@@ -139,10 +174,11 @@ export default function CallPage(){
                   variant: "destructive",
               })
         } 
-          
         await actions.leave();
-        
-    }, [roomName, params.slug, roomId, actions, toast]);
+
+        // Always redirect to pricing/plans section after leaving a call
+        router.replace("/calls?upgrade=1");
+    }, [roomName, params.slug, roomId, actions, toast, router]);
 
     // Fetch user's subscription plan for this call
     React.useEffect(() => {
@@ -186,13 +222,14 @@ export default function CallPage(){
                     description: "Free plan allows only 15 minutes per call.",
                     variant: "destructive",
                 });
-                void leaveCall(); // This will disconnect all users and end the call
+                void leaveCall();
+                router.replace("/calls?upgrade=1"); // Redirect to pricing/plans section
             }, 15 * 60 * 1000); // 15 minutes
         }
         return () => {
             if (timer) clearTimeout(timer);
         };
-    }, [planId, leaveCall, toast]);
+    }, [planId, leaveCall, toast, router]);
 
     React.useEffect(() => {
         if (hmsRoomId) {

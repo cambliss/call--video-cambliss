@@ -9,6 +9,7 @@ export async function POST(req: Request) {
     const call = await prisma.call.findUnique({ where: { id } });
     if (!call) return new Response(JSON.stringify({ error: "Call not found" }), { status: 404 });
 
+    // Subscription logic (requires Subscription table to exist in DB)
     const subscription = await prisma.subscription.findFirst({
       where: { userId: call.userId, status: "ACTIVE" },
       orderBy: { createdAt: "desc" },
