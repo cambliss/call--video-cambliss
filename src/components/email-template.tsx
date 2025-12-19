@@ -31,7 +31,7 @@ export const InviteEmail: React.FC<Readonly<InviteUserEmailProps>> = ({
   invitedByEmail = "bukinoshita@gmail.com",
   inviteLink,
 }: InviteUserEmailProps) => {
-  const previewText = `Join ${invitedByUsername} on Callsquare`;
+  const previewText = `Join ${invitedByUsername} on Cambliss video meet`;
 
   return (
     <Html>
@@ -51,7 +51,7 @@ export const InviteEmail: React.FC<Readonly<InviteUserEmailProps>> = ({
             </Section>
             <Heading className="mx-0 my-[30px] p-0 text-center text-[24px] font-normal text-black">
               Join <strong>{invitedByUsername}</strong> on{" "}
-              <strong>Callsquare</strong>
+              <strong>Cambliss</strong>
             </Heading>
             <Text className="text-[14px] leading-[24px] text-black">
               Hello {recipientUsername},
@@ -65,7 +65,7 @@ export const InviteEmail: React.FC<Readonly<InviteUserEmailProps>> = ({
                 {invitedByEmail}
               </Link>
               ) has invited you to the join their call on{" "}
-              <strong>Callsquare</strong>.
+              <strong>Cambliss video meet</strong>.
             </Text>
             <Section className="mb-[32px] mt-[32px] text-center">
               <Button

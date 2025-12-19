@@ -163,11 +163,16 @@ function openRazorpayForPlan(
 }
 
 function CallsPageContent() {
-  const [showPricing, setShowPricing] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<PlanId | null>(
     typeof window !== "undefined" ? (localStorage.getItem("selectedPlan") as PlanId | null) : null
   );
   const [subscriptionActive, setSubscriptionActive] = useState<boolean>(false);
+  const [currentSubscription, setCurrentSubscription] = useState<{
+    planId: string;
+    planName: string;
+    status: string;
+    currentPeriodEnd: Date | null;
+  } | null>(null);
 
   const { data: session } = useSession();
   const user =
@@ -179,8 +184,16 @@ function CallsPageContent() {
     }) ?? null;
 
   const searchParams = useSearchParams();
-  const upgrade = searchParams.get("upgrade"); // from PLAN_LIMIT_EXCEEDED redirect
-  const router = useRouter();
+  const upgrade = searchParams.get("upgrade");
+  
+  // Always show pricing if user comes from a call or has upgrade=1 in URL
+  const [showPricing, setShowPricing] = useState(upgrade === "1");
+
+  useEffect(() => {
+    if (upgrade === "1") {
+      setShowPricing(true);
+    }
+  }, [upgrade]);
 
   useEffect(() => {
     // Load Razorpay script once
@@ -192,15 +205,27 @@ function CallsPageContent() {
     }
   }, []);
 
+  // Fetch current subscription status
   useEffect(() => {
-    // If user came:
-    // - from homepage / landing with ?plan=starter|professional|enterprise
-    // - OR from a "limit reached, upgrade" flow with ?upgrade=1
-    // then open pricing modal.
-    if (upgrade === "1") {
-      setShowPricing(true);
+    async function fetchSubscription() {
+      if (!user?.id) return;
+      try {
+        const res = await fetch("/api/subscription/status", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userId: user.id }),
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setCurrentSubscription(data.subscription);
+          setSubscriptionActive(data.subscription?.status === "ACTIVE");
+        }
+      } catch (e) {
+        console.error("Failed to fetch subscription:", e);
+      }
     }
-  }, [upgrade]);
+    fetchSubscription();
+  }, [user?.id]);
 
   // Handler for plan selection
   const handlePlanSelect = (planId: PlanId) => {
@@ -227,16 +252,11 @@ function CallsPageContent() {
     setSubscriptionActive(true);
   };
 
-  // Show plans if no plan selected, or paid plan not activated
-  const showDashboardCards = selectedPlan === "free" || subscriptionActive;
+  // Show dashboard cards only if user has selected free plan or paid and activated
+  const showDashboardCards = (selectedPlan === "free" || subscriptionActive) && !showPricing;
 
   return (
-    <div
-      className="w-full bg-black min-h-screen text-white"
-      style={{
-        background: "linear-gradient(135deg, #111 60%, #fff 100%)",
-      }}
-    >
+    <div className="w-full bg-black min-h-screen text-white" style={{ background: "linear-gradient(135deg, #111 60%, #fff 100%)" }}>
       <section className="container mx-auto mb-8 max-w-[1400px] space-y-6 md:mb-12 lg:mb-16">
         <div className="flex flex-col items-center gap-4 text-center">
           <div>
@@ -253,8 +273,28 @@ function CallsPageContent() {
         </div>
       </section>
 
-      {!showDashboardCards ? (
-        // Show plans
+      {/* Show current subscription status if active */}
+      {currentSubscription && currentSubscription.status === "ACTIVE" && (
+        <section className="mx-auto max-w-6xl px-4 mb-6">
+          <div className="rounded-2xl border-2 border-yellow-400 bg-black/90 p-6 shadow-2xl">
+            <h3 className="text-xl font-bold text-yellow-400 mb-2">Active Subscription</h3>
+            <p className="text-white">Plan: <span className="font-semibold">{currentSubscription.planName}</span></p>
+            <p className="text-white">Status: <span className="text-green-400 font-semibold">ACTIVE</span></p>
+            {currentSubscription.currentPeriodEnd && (
+              <p className="text-white">Valid until: <span className="font-semibold">{new Date(currentSubscription.currentPeriodEnd).toLocaleDateString()}</span></p>
+            )}
+            <Button
+              className="mt-4 rounded-full bg-yellow-400 px-6 py-2 text-sm font-semibold uppercase tracking-wide text-black hover:bg-yellow-300"
+              onClick={() => setShowPricing(true)}
+            >
+              Upgrade Plan
+            </Button>
+          </div>
+        </section>
+      )}
+
+      {showPricing || !showDashboardCards ? (
+        // Show plans/pricing section
         <section className="mx-auto space-y-6">
           <div className="mx-auto w-full max-w-[1200px] text-center">
             <div className="grid w-full grid-cols-1 md:grid-cols-4 gap-8 px-4 md:px-8">
@@ -297,7 +337,7 @@ function CallsPageContent() {
           </div>
         </section>
       ) : (
-        // Show dashboard cards only for free plan or after payment success
+        // Show dashboard cards only if no upgrade needed
         <section className="mx-auto space-y-6">
           <div className="mx-auto w-full max-w-[1200px] text-center">
             <div className="grid w-full grid-cols-1 place-items-center gap-3 px-4 sm:grid-cols-2 md:px-8 lg:grid-cols-3 lg:gap-5">

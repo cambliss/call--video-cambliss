@@ -145,13 +145,23 @@ export default function CallPage(){
         });
         // ... rest of your join logic
       } catch (error) {
-        console.error("Error during fetch:", error);
-        toast({
-          title: "Something went wrong.",
-          description: "This call cannot be joined. Please try again.",
-          variant: "destructive",
-        });
-        router.replace("/calls");
+        // Better error messages based on error type
+        if (error instanceof Error) {
+          if (error.message.includes("PLAN_LIMIT_EXCEEDED")) {
+            toast({
+              title: "Meeting is full",
+              description: "Upgrade the host's plan to add more participants.",
+              variant: "destructive",
+            });
+            router.replace("/calls?upgrade=1");
+          } else {
+            toast({
+              title: "Connection failed",
+              description: error.message,
+              variant: "destructive",
+            });
+          }
+        }
       }
     }, [hmsRoomId, roomId, roomName, params.slug, hmsActions, toast, router]);
 
@@ -243,19 +253,22 @@ export default function CallPage(){
                 void leaveCall();
             }
         };
-
     }, [isConnected, leaveCall]);
 
 
     return(
         <section className="flex flex-col w-full h-screen overflow-hidden bg-neutral-950 text-gray-200">
             {/* Show Conference only when connected */}
-            {isConnected ? <Conference /> : (
+            {isConnected ? (
+                <>
+                    <Conference />
+                    <CallFooter/>
+                </>
+            ) : (
                 <div className="flex flex-col items-center justify-center h-full">
                     <p className="text-lg text-yellow-400">Connecting to meeting...</p>
                 </div>
             )}
-            <CallFooter/>
         </section>
     )
-}
+  };

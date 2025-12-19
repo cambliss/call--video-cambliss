@@ -1,0 +1,15 @@
+export function rateLimit(limit: number, windowMs: number) {
+  const requests = new Map<string, number[]>();
+  
+  return (identifier: string): boolean => {
+    const now = Date.now();
+    const timestamps = requests.get(identifier) || [];
+    const recent = timestamps.filter(t => now - t < windowMs);
+    
+    if (recent.length >= limit) return false;
+    
+    recent.push(now);
+    requests.set(identifier, recent);
+    return true;
+  };
+}

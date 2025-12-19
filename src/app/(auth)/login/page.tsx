@@ -4,9 +4,9 @@ import { Icons } from "~/components/ui/icons";
 import SocialAuthForm from "~/components/social-auth-form";
 
 export const metadata: Metadata = {
-  title: "CallSquare - Connect with Ease",
+  title: "Cambliss video meet - Connect with Ease",
   description:
-    "Sign in to CallSquare and start connecting with your friends, family, and colleagues through seamless video calls.",
+    "Sign in cambliss and start connecting with your friends, family, and colleagues through seamless video calls.",
 };
 
 export default function LoginPage() {
