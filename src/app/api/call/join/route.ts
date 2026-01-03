@@ -50,9 +50,23 @@ export async function POST(req: Request) {
       callName: callNameValue,
     });
 
-    const call = await prisma.call.findFirst({
-      where: { status: "created", name: body.callName },
+    // Try to find call by ID first (for UUID links), then by name
+    let call = await prisma.call.findFirst({
+      where: { 
+        id: body.callName,
+        status: "created"
+      },
     });
+    
+    // If not found by ID, try by name
+    if (!call) {
+      call = await prisma.call.findFirst({
+        where: { 
+          name: body.callName,
+          status: "created"
+        },
+      });
+    }
 
     if (!call || call.status === "ended") {
       return new Response("Not Found", { status: 404 });

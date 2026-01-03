@@ -61,7 +61,10 @@ export default function CallFooter() {
   // 🔗 Handle invite link copy
   const handleCopyInviteLink = async () => {
     try {
-      await copyToClipboard(window.location.href);
+      // Generate preview link instead of direct call link
+      const baseUrl = window.location.origin;
+      const inviteUrl = `${baseUrl}/preview/${roomId}`;
+      await copyToClipboard(inviteUrl);
       toast({
         title: "Copied to clipboard",
         description: "The invite link has been copied to your clipboard.",

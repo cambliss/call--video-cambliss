@@ -30,13 +30,16 @@ export default function CallPreviewPage() {
 
   async function joinCall(data: FormData) {
     try {
+      // Extract call ID from params.slug
+      const callId = Array.isArray(params.slug) ? params.slug[0] : params.slug;
+      
       const joinResponse = await fetch(`/api/call/join`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          callName: params.slug,
+          callName: callId,
           username: data.name,
         }),
       });
@@ -72,8 +75,9 @@ export default function CallPreviewPage() {
         throw new Error("Join response not OK");
       }
 
+      const participantData = await joinResponse.json();
       Cookies.set("username", data.name);
-      router.replace(`/call/${params.slug as string}`);
+      router.replace(`/call/${callId}`);
     } catch (error) {
       console.error("Error during fetch:", error);
       toast({

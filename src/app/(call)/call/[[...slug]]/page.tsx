@@ -27,6 +27,14 @@ export default function CallPage(){
     // Fetch the call from backend to get hmsRoomId
     const [hmsRoomId, setHmsRoomId] = React.useState<string | null>(null);
 
+    // Redirect to preview page if cookies are not set (user accessed call directly)
+    React.useEffect(() => {
+      if (!roomId || !roomName) {
+        console.log("Missing cookies, redirecting to preview page");
+        router.replace(`/preview/${Array.isArray(params.slug) ? params.slug[0] : params.slug}`);
+      }
+    }, [roomId, roomName, params.slug, router]);
+
     React.useEffect(() => {
       async function fetchCall() {
         if (!roomId) return;
