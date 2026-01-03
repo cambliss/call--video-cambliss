@@ -118,7 +118,9 @@
     grid-template-columns: repeat(auto-fit, minmax(100%, 1fr));
     gap: 1em;
     padding-inline: 1rem;
-    height: calc(100% - 7rem);
+    height: auto;
+    max-height: calc(100vh - 150px);
+    overflow-y: auto;
   }
 
   @media (min-width: 600px) {

@@ -77,7 +77,7 @@ export default function CallFooter() {
   };
 
   return (
-    <footer className="rounded-lg flex items-center mt-auto justify-center sm:justify-start px-5 py-8">
+    <footer className="flex-shrink-0 rounded-lg flex items-center justify-center sm:justify-start px-5 py-8 bg-neutral-950">
       <div className="grid grid-cols-5 gap-3">
         {/* Mic toggle */}
         <Button
