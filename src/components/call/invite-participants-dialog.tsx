@@ -104,7 +104,7 @@ export default function InviteParticipantsDialog(card: CardProps) {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            recipient: data.email,
+            recipients: [data.email],
             link: inviteLink,
             recipientUsername,
             senderImage: currentUser.user.image,

@@ -80,7 +80,7 @@ export default function CallFooter() {
   };
 
   return (
-    <footer className="flex-shrink-0 rounded-lg flex items-center justify-center sm:justify-start px-5 py-8 bg-neutral-950">
+    <footer className="flex-shrink-0 rounded-lg flex items-center justify-between gap-4 px-5 py-8 bg-neutral-950 flex-wrap">
       <div className="grid grid-cols-5 gap-3">
         {/* Mic toggle */}
         <Button
@@ -142,6 +142,10 @@ export default function CallFooter() {
           <HangUpIcon color="white" width={25} height={25} />
         </Button>
       </div>
+
+      <span className="text-xs text-neutral-400 font-semibold uppercase tracking-wide">
+        Cambliss
+      </span>
 
       {showRejoinPopup && (
         <RejoinCall

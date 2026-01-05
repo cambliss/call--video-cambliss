@@ -18,13 +18,6 @@ export default function Conference() {
 
     return (
         <div className="relative flex-1 w-full overflow-hidden">
-            {/* Watermark overlay across the entire video area */}
-            <div className="pointer-events-none absolute inset-0 z-50 flex items-center justify-center">
-                <span className="text-8xl font-bold text-white opacity-20 rotate-[-30deg]">
-                    CAMBLISS
-                </span>
-            </div>
-
             <div className="w-full conference pt-4">
                 {error ? (
                     <div className="text-red-500">{error}</div>

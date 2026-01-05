@@ -88,7 +88,7 @@ export default function SiteFooter() {
 
               <p className="flex gap-2">
                 <Phone size={18} className="text-yellow-400" />
-                1800 571 9799
+                8309264634
               </p>
 
               <p className="flex gap-2">

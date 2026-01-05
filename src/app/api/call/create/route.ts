@@ -10,10 +10,14 @@ import { generateManagementToken } from "~/server/management-token";
 
 const callCreateSchema = z.object({
   callName: z.string().uuid(),
+  scheduledStartTime: z.string().datetime().optional(),
+  scheduledTimeZone: z.string().optional(),
 });
 
 interface CallCreateBody {
   callName: string;
+  scheduledStartTime?: string;
+  scheduledTimeZone?: string;
 }
 
 export async function POST(req: Request) {
@@ -72,13 +76,17 @@ export async function POST(req: Request) {
     const planId = subscription?.planId ?? "free";
 
     // Set limits for free plan
+    const scheduledStart = body.scheduledStartTime
+      ? new Date(body.scheduledStartTime)
+      : new Date();
+
     const callData: any = {
       id: body.callName,
       name: body.callName,
       hmsRoomId,
       userId: user.id,
       title: `${user.name}'s Call`,
-      startTime: new Date(),
+      startTime: scheduledStart,
       status: "created",
       endTime: null,
     };

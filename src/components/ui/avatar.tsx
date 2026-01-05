@@ -4,11 +4,11 @@ export default function Avatar ({ name }: { name: string }) {
   const initials = getInitials(name);
   return (
     <div 
-        className='
-            flex justify-center items-center font-bold min-w-[100px] min-h-[100px] w-[15vw] h-[15vw] 
-            max-w-[300px] max-h-[300px] rounded-full text-gray-200 bg-neutral-700 text-[6vw] sm:text-[4vw]
-            absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2
-        '
+      className='
+        flex justify-center items-center font-bold min-w-[48px] min-h-[48px] w-[10vw] h-[10vw]
+        max-w-[120px] max-h-[120px] rounded-full text-gray-200 bg-neutral-700 text-[4vw] sm:text-[2.5vw]
+        absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2
+      '
     >
         {initials}
     </div>
