@@ -1,6 +1,6 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "~/server/auth";
-import { db } from "~/server/db";
+import { prisma } from "~/server/db";
 import bcrypt from "bcryptjs";
 
 export async function POST(req: Request) {
@@ -31,7 +31,7 @@ export async function POST(req: Request) {
     }
 
     // Find user account
-    const account = await db.account.findFirst({
+    const account = await prisma.account.findFirst({
       where: { 
         user: { email: session.user.email },
         provider: "credentials"
@@ -58,7 +58,7 @@ export async function POST(req: Request) {
     const hashedPassword = await bcrypt.hash(newPassword, 10);
 
     // Update password
-    await db.account.update({
+    await prisma.account.update({
       where: { id: account.id },
       data: { password: hashedPassword },
     });

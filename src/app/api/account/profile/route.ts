@@ -1,6 +1,6 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "~/server/auth";
-import { db } from "~/server/db";
+import { prisma } from "~/server/db";
 
 export async function PUT(req: Request) {
   try {
@@ -16,7 +16,7 @@ export async function PUT(req: Request) {
       return new Response("Missing required fields", { status: 400 });
     }
 
-    const user = await db.user.update({
+    const user = await prisma.user.update({
       where: { email: session.user.email },
       data: {
         name,
