@@ -74,7 +74,15 @@ Create a `.env.local` file in the root directory and add the environment variabl
 
 ## How do I deploy this?
 
-Follow the deployment guides for [Vercel](https://create.t3.gg/en/deployment/vercel), [Netlify](https://create.t3.gg/en/deployment/netlify) and [Docker](https://create.t3.gg/en/deployment/docker) for more information
+Follow the deployment guides for [Vercel](https://create.t3.gg/en/deployment/vercel), [Netlify](https://create.t3.gg/en/deployment/netlify) and [Docker](https://create.t3.gg/en/deployment/docker) for more information.
+
+### Render (quick notes)
+
+- Set all secrets in Render dashboard (do not commit `.env`). Use `.env.example` as a template.
+- `DATABASE_URL` must point to your Render PostgreSQL connection string.
+- Build command: `pnpm install --frozen-lockfile && pnpm prisma migrate deploy && pnpm build`
+- Start command: `pnpm start`
+- If migrations are already applied, replace the build step with `pnpm prisma generate`.
 
 ## License
 

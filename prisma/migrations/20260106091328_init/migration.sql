@@ -1,3 +1,9 @@
+-- CreateEnum
+CREATE TYPE "SubscriptionStatus" AS ENUM ('PENDING', 'ACTIVE', 'CANCELED', 'EXPIRED');
+
+-- CreateEnum
+CREATE TYPE "PlanId" AS ENUM ('free', 'starter', 'professional', 'enterprise');
+
 -- CreateTable
 CREATE TABLE "Account" (
     "id" TEXT NOT NULL,
@@ -33,6 +39,7 @@ CREATE TABLE "User" (
     "email" TEXT,
     "emailVerified" TIMESTAMP(3),
     "image" TEXT,
+    "phone" TEXT,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
 );
@@ -56,6 +63,7 @@ CREATE TABLE "Call" (
     "duration" INTEGER,
     "maxParticipants" INTEGER,
     "inviteLink" TEXT,
+    "hmsRoomId" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "Call_pkey" PRIMARY KEY ("id")
@@ -75,6 +83,26 @@ CREATE TABLE "Participant" (
     "endTime" TIMESTAMP(3),
 
     CONSTRAINT "Participant_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Subscription" (
+    "id" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "planId" "PlanId" NOT NULL,
+    "planName" TEXT NOT NULL,
+    "amountInINR" INTEGER NOT NULL,
+    "currency" TEXT NOT NULL DEFAULT 'INR',
+    "status" "SubscriptionStatus" NOT NULL DEFAULT 'PENDING',
+    "razorpayOrderId" TEXT,
+    "razorpayPaymentId" TEXT,
+    "razorpaySignature" TEXT,
+    "currentPeriodStart" TIMESTAMP(3),
+    "currentPeriodEnd" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Subscription_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
@@ -106,3 +134,6 @@ ALTER TABLE "Participant" ADD CONSTRAINT "Participant_callId_fkey" FOREIGN KEY (
 
 -- AddForeignKey
 ALTER TABLE "Participant" ADD CONSTRAINT "Participant_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Subscription" ADD CONSTRAINT "Subscription_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
