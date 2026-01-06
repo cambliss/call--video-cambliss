@@ -30,15 +30,12 @@ export async function POST(req: Request) {
       });
     }
 
-    // Find user account
-    const account = await prisma.account.findFirst({
-      where: { 
-        user: { email: session.user.email },
-        provider: "credentials"
-      },
+    // Find user
+    const user = await prisma.user.findUnique({
+      where: { email: session.user.email },
     });
 
-    if (!account) {
+    if (!user || !user.password) {
       return new Response(JSON.stringify({ error: "Account not found or not using password authentication" }), { 
         status: 404,
         headers: { "Content-Type": "application/json" }
@@ -46,7 +43,7 @@ export async function POST(req: Request) {
     }
 
     // Verify current password
-    const isValid = await bcrypt.compare(currentPassword, account.password || "");
+    const isValid = await bcrypt.compare(currentPassword, user.password);
     if (!isValid) {
       return new Response(JSON.stringify({ error: "Current password is incorrect" }), { 
         status: 401,
@@ -58,8 +55,8 @@ export async function POST(req: Request) {
     const hashedPassword = await bcrypt.hash(newPassword, 10);
 
     // Update password
-    await prisma.account.update({
-      where: { id: account.id },
+    await prisma.user.update({
+      where: { id: user.id },
       data: { password: hashedPassword },
     });
 

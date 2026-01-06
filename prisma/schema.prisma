@@ -60,6 +60,7 @@ model User {
   emailVerified DateTime?
   image         String?
   phone         String?
+  password      String?         // For credentials-based auth
 
   accounts      Account[]
   sessions      Session[]
