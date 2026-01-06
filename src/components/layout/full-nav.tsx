@@ -38,11 +38,11 @@ export default async function FullNav({
   ) : (
     <>
       {/* Dashboard button when logged in */}
-      <Link href="/calls">
+      {/* <Link href="/calls">
         <Button className="rounded-full bg-yellow-400 px-7 py-2 text-sm font-semibold uppercase tracking-wide text-black shadow-[0_0_30px_rgba(250,204,21,0.5)] hover:bg-yellow-300 transition">
           Dashboard
         </Button>
-      </Link>
+      </Link> */}
 
       {/* User dropdown (avatar + logout) */}
       <UserAccountDropdown

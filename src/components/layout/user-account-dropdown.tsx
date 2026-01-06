@@ -1,5 +1,6 @@
 "use client";
 import { signOut } from "next-auth/react";
+import Link from "next/link";
 import UserAvatarLabelGroup from "../user-avatar-label-group";
 import { useToast } from "../ui/use-toast";
 import {
@@ -55,20 +56,18 @@ export default function UserAccountDropdown({ user }: DropdownProps) {
         <DropdownMenuSeparator className="bg-yellow-400/30" />
 
         <DropdownMenuGroup>
-          <DropdownMenuItem
-            disabled
-            className="cursor-not-allowed text-yellow-500/60 focus:bg-yellow-400/5"
-          >
-            <Icons.avatar width="16" height="16" className="mr-2" />
-            Profile (coming soon)
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            disabled
-            className="cursor-not-allowed text-yellow-500/60 focus:bg-yellow-400/5"
-          >
-            <Icons.settings width="16" height="16" className="mr-2" />
-            Settings (coming soon)
-          </DropdownMenuItem>
+          <Link href="/profile">
+            <DropdownMenuItem className="cursor-pointer text-yellow-400 focus:bg-yellow-400/10">
+              <Icons.avatar width="16" height="16" className="mr-2" />
+              Profile
+            </DropdownMenuItem>
+          </Link>
+          <Link href="/settings">
+            <DropdownMenuItem className="cursor-pointer text-yellow-400 focus:bg-yellow-400/10">
+              <Icons.settings width="16" height="16" className="mr-2" />
+              Settings
+            </DropdownMenuItem>
+          </Link>
         </DropdownMenuGroup>
 
         <DropdownMenuSeparator className="bg-yellow-400/30" />
