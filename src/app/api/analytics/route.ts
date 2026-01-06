@@ -10,12 +10,11 @@ export async function POST(req: Request) {
       _count: { id: true },
     });
 
-    const totalDuration = await prisma.participant.aggregate({
+    const participantCount = await prisma.participant.count({
       where: { userId },
-      _sum: { duration: true },
     });
 
-    return new Response(JSON.stringify({ analytics, totalDuration }));
+    return new Response(JSON.stringify({ analytics, participantCount }));
   } catch (e) {
     return new Response(JSON.stringify({ error: "Failed to fetch analytics" }), { status: 500 });
   }
