@@ -81,9 +81,9 @@ export default function CreateCallCard(card: CardProps) {
 
   function toUTCISOString(date: string, time: string, timeZone: string): string {
     // Convert user-selected date/time in a specific timezone into a UTC ISO string.
-    const [year, month, day] = date.split("-").map(Number);
-    const [hour, minute] = time.split(":").map(Number);
-    const target = new Date(Date.UTC(year, (month ?? 1) - 1, day, hour, minute || 0, 0));
+    const [year = 0, month = 1, day = 1] = date.split("-").map(Number);
+    const [hour = 0, minute = 0] = time.split(":" ).map(Number);
+    const target = new Date(Date.UTC(year, month - 1, day, hour, minute, 0));
 
     const formatter = new Intl.DateTimeFormat("en-US", {
       timeZone,
